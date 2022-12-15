@@ -27,7 +27,7 @@ class UserPreprocessor( Preprocessor ):
             group, subgroup = interest.split('_')
             yield (group, subgroup)
 
-    def fill_none(self, batch: dict):
+    def fill_none(self, batch: Dict[str, List[str]]) -> Dict[str, List[str]]:
         for column, value in zip(self.column_names, self.__none_value__):
             batch[column] = [
                 data if data != None else value
@@ -35,7 +35,7 @@ class UserPreprocessor( Preprocessor ):
             ]
         return batch
 
-    def encode(self, user_profile):
+    def encode(self, user_profile: Dict[str, List[str]]) -> Dict[str, List[ Union[int, List[int]] ]]:
         res = {
             key: func( user_profile[key] ) for key, func in zip(self.column_names, self.__encode_func__)
         }
@@ -45,15 +45,15 @@ class UserPreprocessor( Preprocessor ):
         del res[ interest_col ]
         return res
 
-    def encode_user_id(self, user_id: str):
+    def encode_user_id(self, user_id: List[str]):
         raise NotImplementedError
-    def encode_gender(self, gender: str):
+    def encode_gender(self, gender: List[str]):
         raise NotImplementedError
-    def encode_titles(self, titles: str):
+    def encode_titles(self, titles: List[str]):
         raise NotImplementedError
-    def encode_interests(self, interests: str):
+    def encode_interests(self, interests: List[str]):
         raise NotImplementedError
-    def encode_recreations(self, recreations: str):
+    def encode_recreations(self, recreations: List[str]):
         raise NotImplementedError
 
 
@@ -61,14 +61,8 @@ class UserPreprocessor( Preprocessor ):
 class BasicUserPreprocessor( UserPreprocessor ):
     """
         mapping all attribute into idx
-        ex: 54f305134ec3c809002e4ab7,female,自由業,"生活品味_靈性發展,生活品味_寵物","狗派,貓派"]
-        ->  [ 1, 1, [2], [(3,4),(3,5)], [1,2] ]
     """
     def __init__(self, vocab_dir: Union[str, Path], column_names):
-        """
-            config_dir: 5 json files for converting each attributes into idx.
-                ex: user_idx.json ...
-        """
         super().__init__(column_names)
 
         self.vocab_dir = vocab_dir
@@ -95,16 +89,33 @@ class BasicUserPreprocessor( UserPreprocessor ):
 
 
     def encode_user_id(self, user_id: List[str] ) -> List[int]:
+        """
+            [Hash 1, Hash 2, Hash 3] -> [1, 2, 3]
+        """
         return self.encoder['user'].encode(user_id)
 
     def encode_gender(self, gender: List[str]) -> List[int]:
+        """
+            ["female", "male", "other"] --> [2, 3, 4]
+        """
         return self.encoder['gender'].encode(gender)
 
     def encode_titles(self, titles: List[str]) -> List[List[int]]:
-        # Titles = "title1,title2,title3"
+        """
+            titles: [ "藝文設計,服務業", "科技業" ]
+                --> [ [id1, id2],       [id3] ]
+        """
         return [ self.encoder['title'].encode(x.split(',')) for x in titles ]
 
     def encode_interests(self, interests: List[str]) -> Tuple[ List[List[int]], List[List[int]] ]:
+        """
+            interests: [ "藝術_角色設計,藝術_電腦繪圖", "藝術_繪畫與插畫" ]
+                --> group:     [ ["藝術", "藝術"],        ["藝術"] ]
+                    subgroups: [ ["角色設計", "電腦繪圖"], ["繪畫與插圖"] ]
+                --> group:     [ [7, 7], [7] ]
+                    subgroups: [ [3, 4], [6] ]
+
+        """
         groups, subgroups = [], []
         for user_interests in interests:
             # user_interests = 'G1_SG1,G2_SG2'
@@ -118,7 +129,10 @@ class BasicUserPreprocessor( UserPreprocessor ):
         #     for (group, subgroup) in self.interest_generator(x)
             
         # ]
-    def encode_recreations(self, recreations: str) -> List[int]:
+    def encode_recreations(self, recreations: List[str]) -> List[List[int]]:
+        """
+            recreations: [ "睡覺,電玩", "吸貓" ] --> [ [id1, id2], [id3] ]
+        """
         return [ self.encoder['recreation'].encode(x.split(',')) for x in recreations ]
 
 
