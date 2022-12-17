@@ -158,7 +158,13 @@ def prepare_topic_datadict(
     return DatasetDict(data_dict)
 
 
-def prepare_topic_dataloader(seen: bool, data_dir: Path, vocab_dir: Path, batch_size: int, with_bos_eos: bool) -> Dict[str, DataLoader]:
+def prepare_topic_dataloader(seen: bool, data_dir: Path, vocab_dir: Path, batch_size: int, with_bos_eos: bool = False) -> Dict[str, DataLoader]:
+    """
+        vocab_dir: refer to README
+        with_bos_eos: the format of output, default is False
+            False for classification model
+            True for sequence output model ( input_seq = [bos, labels], target_seq = [labels, eos] )
+    """
     data_dict = prepare_topic_datadict(seen, data_dir, vocab_dir, with_bos_eos )
 
     def collate_fn(inputs: List[Dict[str, Any]]) -> Dict[str, Tensor]:
