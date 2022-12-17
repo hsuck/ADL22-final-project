@@ -7,13 +7,17 @@ import argparse
 class Vocab:
     PAD = "[PAD]"
     UNK = "[UNK]"
+    BOS = "[BOS]"
+    EOS = "[EOS]"
 
     def __init__(self, vocab: Iterable[str] = [], with_sepcial_token=True):
         if with_sepcial_token:
             self.token2idx = {
                 Vocab.PAD: 0,
                 Vocab.UNK: 1,
-                **{token: i for i, token in enumerate(vocab, 2)},
+                Vocab.BOS: 2,
+                Vocab.EOS: 3,
+                **{token: i for i, token in enumerate(vocab, 4)},
             }
         else:
             self.token2idx = {token: i for i, token in enumerate(vocab)}
@@ -31,6 +35,18 @@ class Vocab:
     def unk_id(self) -> int:
         if Vocab.UNK in self.token2idx:
             return self.token2idx[Vocab.UNK]
+        else:
+            return -1
+    @property
+    def bos_id(self) -> int:
+        if Vocab.BOS in self.token2idx:
+            return self.token2idx[Vocab.BOS]
+        else:
+            return -1
+    @property
+    def eos_id(self) -> int:
+        if Vocab.EOS in self.token2idx:
+            return self.token2idx[Vocab.EOS]
         else:
             return -1
 
@@ -140,7 +156,7 @@ def main():
     
     # Group & Subgroup from User Interests
     user_group, user_subgroup = set(), set()
-    for interests in user_df['interests'].fillna( f"{Vocab.UNK}_{Vocab.UNK}"):
+    for interests in user_df['interests'].fillna( f"{Vocab.BOS}_{Vocab.BOS},{Vocab.EOS}_{Vocab.EOS}"):
         # print(interests)
         for interest in interests.split(','):
             group, subgroup = interest.split('_')
@@ -152,10 +168,10 @@ def main():
     # Group & Subgroup from Course
     course_group = set()
     course_subgroup = set()
-    for groups in course_df['groups'].fillna(Vocab.UNK):
+    for groups in course_df['groups'].fillna(f"{Vocab.BOS},{Vocab.EOS}"):
         for group in groups.split(','):
             course_group.add(group)
-    for subgroups in course_df['sub_groups'].fillna(Vocab.UNK):
+    for subgroups in course_df['sub_groups'].fillna(f"{Vocab.BOS},{Vocab.EOS}"):
         for subgroup in subgroups.split(','):
             course_subgroup.add(subgroup)
     
@@ -164,8 +180,10 @@ def main():
     merged_group = sorted( user_group | course_group )
     merged_subgroup = sorted( set(subgroup_df['subgroup_name']) | user_subgroup | course_subgroup )
 
-    merged_group.remove(Vocab.UNK)
-    merged_subgroup.remove(Vocab.UNK)
+    merged_group.remove(Vocab.BOS)
+    merged_group.remove(Vocab.EOS)
+    merged_subgroup.remove(Vocab.BOS)
+    merged_subgroup.remove(Vocab.EOS)
     # Dump Group & subgroups
     print("Dumping Group & Subgroups")
     Vocab(merged_group).save( output_dir / 'group.json' )

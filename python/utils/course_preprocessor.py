@@ -1,4 +1,8 @@
-from interface import Preprocessor
+try:
+    from .interface import Preprocessor
+except:
+    from interface import Preprocessor
+
 class CoursePreprocessor(Preprocessor):
     """
         - course_id: hash str

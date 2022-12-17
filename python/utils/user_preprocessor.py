@@ -4,8 +4,13 @@ import json
 import datasets
 from datasets import Dataset
 
-from .interface import Preprocessor
-from .vocab import Vocab
+try:
+    from .interface import Preprocessor
+    from .vocab import Vocab
+except:
+    from interface import Preprocessor
+    from vocab import Vocab
+
 class UserPreprocessor( Preprocessor ):
     """
         - user_id
@@ -19,7 +24,13 @@ class UserPreprocessor( Preprocessor ):
         # Column name should follow order: uid, gender, title, interests, recreations
         self.column_names = column_names
         self.__encode_func__ = [self.encode_user_id, self.encode_gender, self.encode_titles, self.encode_interests, self.encode_recreations]
-        self.__none_value__ = [Vocab.UNK, Vocab.UNK, Vocab.UNK, f"{Vocab.UNK}_{Vocab.UNK}", Vocab.UNK]
+        self.__none_value__ = [
+            Vocab.UNK,
+            Vocab.UNK,
+            Vocab.UNK,
+            f"{Vocab.UNK}_{Vocab.UNK}",
+            Vocab.UNK,
+        ]
 
     @staticmethod
     def interest_generator(interests: str):
@@ -27,12 +38,32 @@ class UserPreprocessor( Preprocessor ):
             group, subgroup = interest.split('_')
             yield (group, subgroup)
 
-    def fill_none(self, batch: Dict[str, List[str]]) -> Dict[str, List[str]]:
+    def fill_none_as_unk(self,  batch: Dict[str, List[str]]) -> Dict[str, List[str]]:
         for column, value in zip(self.column_names, self.__none_value__):
             batch[column] = [
                 data if data != None else value
                 for data in batch[column]
             ]
+        return batch
+
+    def append_bos_eos(self, batch: Dict[str, List[str]]) -> Dict[str, List[str]]:
+        for column, value in zip(self.column_names, self.__none_value__):
+            if column in ['user_id', 'gender']:
+                res = [ data if data != None else value for data in batch[column] ]
+            elif column in ['interests']:
+                res = [
+                    ",".join( [f"{Vocab.BOS}_{Vocab.BOS}", data, f"{Vocab.EOS}_{Vocab.EOS}"] )
+                    if data != None else value
+                    for data in batch[column]
+                ]
+            else:
+                res = [
+                    ",".join( [Vocab.BOS, data, Vocab.EOS] )
+                    if data != None else value
+                    for data in batch[column]
+                ]
+
+            batch[column] = res
         return batch
 
     def encode(self, user_profile: Dict[str, List[str]]) -> Dict[str, List[ Union[int, List[int]] ]]:
@@ -136,9 +167,9 @@ class BasicUserPreprocessor( UserPreprocessor ):
         return [ self.encoder['recreation'].encode(x.split(',')) for x in recreations ]
 
 
-def prepare_user_datasets( users_dataset: Dataset, user_p: UserPreprocessor, batch_size: int ) -> Dataset:
+def prepare_user_datasets( users_dataset: Dataset, user_p: UserPreprocessor, batch_size: int, with_bos_eos: bool ) -> Dataset:
     D = users_dataset.map(
-        user_p.fill_none,
+        user_p.append_bos_eos if with_bos_eos else user_p.fill_none_as_unk,
         batch_size=batch_size,
         batched=True,
     )
@@ -157,10 +188,18 @@ if __name__ == "__main__":
     user_p = BasicUserPreprocessor("../../cache/vocab", column_names=user_data.column_names)
     batch_size = 32
 
-    user_data = user_data.select(range(1000))
-    user_data = prepare_user_datasets( user_data, user_p, batch_size )
+    for flag in [False, True]:
+        X = user_data.select(range(5))
+        Y = prepare_user_datasets( X, user_p, batch_size, flag )
+        
+        print()
+        for column in X.column_names:
+            if column == 'interests': continue
+            print(f"[{column}]:")
+            print(f"  {X[column]} ->  {Y[column]}")
 
-    print(user_data[:10])
-
-    idx = 13
-    print(user_data[idx])
+        print(f"[interests]:")
+        print(f"  {X['interests']}")
+        print(f"  {Y['groups']}")
+        print(f"  {Y['subgroups']}")
+        print()
