@@ -1,10 +1,10 @@
-from interface import Preprocessor
 from typing import *
 from pathlib import Path
-from vocab import Vocab
 import pandas as pd
 from datasets import Dataset
 
+from .interface import Preprocessor
+from .vocab import Vocab
 
 class TopicReorder():
     def __init__(self, vocab_dir: Union[str, Path], data_dir: Union[str, Path]) -> None:

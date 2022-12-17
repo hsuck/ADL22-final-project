@@ -1,10 +1,11 @@
 from typing import *
 from datasets import Dataset, DatasetDict
 from pathlib import Path
-from user_preprocessor import BasicUserPreprocessor, prepare_user_datasets
-from topic_reorder import TopicReorder
 from torch.utils.data import DataLoader
 from torch import LongTensor, Tensor
+
+from .user_preprocessor import BasicUserPreprocessor, prepare_user_datasets
+from .topic_reorder import TopicReorder
 
 def pad_to_max_len(seqs: List[List[int]], padding: int) -> List[List[int]]:
     max_len = max( [ len(s) for s in seqs] )
@@ -52,6 +53,7 @@ def prepare_topic_datadict(seen: bool, data_dir: Path, vocab_dir: Path) -> Datas
     data_dict = {}
     TR = TopicReorder(vocab_dir, data_dir)
     for key, file_path in data_files.items():
+        print(f"[{key}]: Processing {file_path}")
         ds = Dataset.from_csv( str(file_path) )
         if key != 'test':
             ds = TR.process_dataset(ds)

@@ -1,11 +1,11 @@
-from interface import Preprocessor
 from typing import *
 from pathlib import Path
 import json
-from vocab import Vocab
 import datasets
 from datasets import Dataset
 
+from .interface import Preprocessor
+from .vocab import Vocab
 class UserPreprocessor( Preprocessor ):
     """
         - user_id
