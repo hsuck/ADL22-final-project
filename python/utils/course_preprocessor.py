@@ -2,6 +2,8 @@ from typing import *
 from pathlib import Path
 from datetime import datetime
 from datasets import Dataset
+import pandas as pd
+import numpy as np
 try:
     from .interface import Preprocessor
     from .vocab import Vocab
@@ -174,7 +176,31 @@ class BasicCoursePreprocessor(CoursePreprocessor):
         ]
         return res
 
-def prepare_course_datasets( course_data: Dataset, course_p: CoursePreprocessor, batch_size: int, with_bos_eos: bool ) -> Dataset:
+def course_item_features(item_csv):
+    item_df = pd.read_csv( item_csv )
+    
+    feature = {
+    }
+
+    for course_id, sub_df in item_df.groupby("course_id"):
+        chapter_cnt = np.max(sub_df['chapter_no'])
+        unit_cnt = np.sum( sub_df['chapter_item_type'] == "LECTURE" )
+        assignment_cnt = np.sum( sub_df['chapter_item_type'] == "ASSIGNMENT" )
+        total_sec = int(np.sum( sub_df['video_length_in_seconds'].fillna(0) ))
+
+        assert( unit_cnt + assignment_cnt == len(sub_df) )
+
+
+        feature[course_id] = {}
+        feature[course_id]['chapter_cnt'] = chapter_cnt
+        feature[course_id]['unit_cnt'] = unit_cnt
+        feature[course_id]['assignment_cnt'] = assignment_cnt
+        feature[course_id]['total_sec'] = total_sec
+    return feature
+
+
+def prepare_course_datasets( course_data: Dataset, chapter_feature: Dict[str, Dict[str, int]], course_p: CoursePreprocessor, batch_size: int, with_bos_eos: bool = False ) -> Dataset:
+    
     D = course_data.map(
         course_p.fill_none_as_unk,
         batch_size=batch_size,
@@ -185,24 +211,35 @@ def prepare_course_datasets( course_data: Dataset, course_p: CoursePreprocessor,
         batch_size=batch_size,
         batched=True,
     )
+    
+    for key in [ 'chapter_cnt', 'unit_cnt', 'assignment_cnt', 'total_sec' ]:
+        col_data = [ chapter_feature[id][key] if id in chapter_feature else 0 for id in course_data['course_id'] ]
+        D = D.add_column(key, col_data)
     # D = D.sort("course_id")
     return D
 
 if __name__ == "__main__":
     course_data = Dataset.from_csv( "../../data/courses.csv" )
+    item_feat = course_item_features("../../data/course_chapter_items.csv" )
     course_p = BasicCoursePreprocessor("../../cache/vocab", column_names=course_data.column_names)
     batch_size = 32
 
+
     X = course_data.select( range(5) )
-    Y = prepare_course_datasets( X, course_p, batch_size, False )
+    Y = prepare_course_datasets( X, item_feat, course_p, batch_size, False )
     
     # print( X['course_published_at_local'] )
     # print()
     # print(X.column_names)
-    for column in X.column_names:
+    for column in Y.column_names:
         if column in ['course_name','teacher_intro', 'description', 'will_learn', 'required_tools', 'recommended_background', 'target_group']: continue
         print(f"[{column}]:")
-        print(f"    {X[column]}")
+        if column in X.column_names:
+            print(f"    {X[column]}")
+        else:
+            print( "    Course Item Feature")
         print(f" -> {Y[column]}")
+        print()
+
 
 
