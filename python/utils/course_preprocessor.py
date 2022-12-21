@@ -198,6 +198,23 @@ class BasicCoursePreprocessor(CoursePreprocessor):
     def unk_token_id(self) -> int:
         return self.tokenizer.unk_token_id
 
+
+class BertCoursePreprocessor(BasicCoursePreprocessor):
+    """
+        Tokenize group / subgroup / topic by Pretrained Tokenizer, rather than self defined token.
+    """
+    def __init__(self, vocab_dir, column_names, pretrained_name: str, year_offset=2014, month_offset=12):
+        super().__init__(vocab_dir, column_names, pretrained_name, year_offset, month_offset)
+        self.encoder['group'] = self.tokenizer
+        self.encoder['subgroup'] = self.tokenizer
+        self.encoder['topic'] = self.tokenizer
+
+    def encode_csv_sent(self, csv_sents: List[str], encoder: Union[Vocab, PreTrainedTokenizer]) -> List[List[int]]:
+        if encoder == self.tokenizer:
+            return self.encode_sentences(csv_sents)
+        else:    
+            return super().encode_csv_sent(csv_sents, encoder)
+
 def course_item_features(item_csv):
     item_df = pd.read_csv( item_csv )
     
@@ -250,7 +267,7 @@ def prepare_course_datasets( course_data: Dataset, chapter_feature: Dict[str, Di
 if __name__ == "__main__":
     course_data = Dataset.from_csv( "../../data/courses.csv" )
     item_feat = course_item_features("../../data/course_chapter_items.csv" )
-    course_p = BasicCoursePreprocessor(
+    course_p = BertCoursePreprocessor(
         vocab_dir="../../cache/vocab",
         column_names=course_data.column_names,
         pretrained_name='bert-base-multilingual-cased',
@@ -263,17 +280,6 @@ if __name__ == "__main__":
     
     print(X.column_names)
     for column in Y.column_names:
-        if column in ['course_name','teacher_intro', 'description', 'will_learn', 'required_tools', 'recommended_background', 'target_group']: continue
-        print(f"[{column}]:")
-        if column in X.column_names:
-            print(f"    {X[column]}")
-        else:
-            print( "    Course Item Feature")
-        print(f" -> {Y[column]}")
-        print()
-
-    for column in Y.column_names:
-        if column not in ['course_name','teacher_intro', 'will_learn', 'description', 'required_tools', 'recommended_background', 'target_group']: continue
         print(f"[{column}]:")
         if column in X.column_names:
             print(f"    {X[column]}")

@@ -3,7 +3,10 @@ from pathlib import Path
 import json
 import datasets
 from datasets import Dataset
-
+from transformers import (
+    PreTrainedTokenizer,
+    AutoTokenizer,
+)
 try:
     from .interface import Preprocessor
     from .vocab import Vocab
@@ -166,7 +169,43 @@ class BasicUserPreprocessor( UserPreprocessor ):
         """
         return [ self.encoder['recreation'].encode(x.split(',')) for x in recreations ]
 
+class BertUserPreprocessor( BasicUserPreprocessor ):
+    def __init__(self, vocab_dir: Union[str, Path], column_names, pretrained_name):
+        super().__init__(vocab_dir, column_names)
+        self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(pretrained_name)
+        self.encoder['gender'] = self.tokenizer
+        self.encoder['title'] = self.tokenizer
+        self.encoder['group'] = self.tokenizer
+        self.encoder['subgroup'] = self.tokenizer
+    
+    def encode_sentences(self, sents: List[str]) -> List[ List[int] ]:
+        res = self.tokenizer(
+            text=sents,
+            truncation=True,
+            max_length=256,
+        )
+        return res['input_ids']
 
+    def encode_gender(self, gender: List[str]) -> List[int]:
+        return self.encode_sentences(gender)
+
+    def encode_titles(self, titles: List[str]) -> List[List[int]]:
+        return self.encode_sentences(titles)
+
+    def encode_interests(self, interests: List[str]) -> Tuple[ List[List[int]], List[List[int]] ]:
+        groups, subgroups = [], []
+        for user_interests in interests:
+            # user_interests = 'G1_SG1,G2_SG2'
+            data = [ (g, sg) for (g, sg) in self.interest_generator(user_interests) ]
+            group_str = ','.join([ g for g, _ in data ])
+            subgroup_str = ','.join([ sg for _, sg in data ])
+            groups.append( group_str )
+            subgroups.append( subgroup_str )
+        return self.encode_sentences(groups), self.encode_sentences(subgroups)
+
+    def encode_recreations(self, recreations: List[str]) -> List[List[int]]:
+        return self.encode_sentences(recreations)
+    
 def prepare_user_datasets( users_dataset: Dataset, user_p: UserPreprocessor, batch_size: int, with_bos_eos: bool ) -> Dataset:
     D = users_dataset.map(
         user_p.append_bos_eos if with_bos_eos else user_p.fill_none_as_unk,
@@ -185,10 +224,14 @@ def prepare_user_datasets( users_dataset: Dataset, user_p: UserPreprocessor, bat
 if __name__ == "__main__":
     
     user_data = datasets.Dataset.from_csv( "../../data/users.csv" )
-    user_p = BasicUserPreprocessor("../../cache/vocab", column_names=user_data.column_names)
+    user_p = BertUserPreprocessor(
+        "../../cache/vocab",
+        column_names=user_data.column_names,
+        pretrained_name="bert-base-multilingual-cased"
+    )
     batch_size = 32
 
-    for flag in [False, True]:
+    for flag in [False]:
         X = user_data.select(range(5))
         Y = prepare_user_datasets( X, user_p, batch_size, flag )
         
