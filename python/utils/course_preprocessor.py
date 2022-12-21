@@ -3,7 +3,12 @@ from pathlib import Path
 from datetime import datetime
 from datasets import Dataset
 import pandas as pd
+from bs4 import BeautifulSoup
 import numpy as np
+from transformers import (
+    PreTrainedTokenizer,
+    AutoTokenizer,
+)
 try:
     from .interface import Preprocessor
     from .vocab import Vocab
@@ -71,7 +76,14 @@ class CoursePreprocessor(Preprocessor):
                 for data in batch[column]
             ]
         return batch
-
+    
+    def description_to_text(self, batch: Dict[str, List[str]]) -> Dict[str, List[str]]:
+        desc_col = 'description'
+        batch[desc_col] = [
+            BeautifulSoup(html, 'html.parser').text
+            for html in batch[desc_col]
+        ]
+        return batch
 
     def encode(self, course_profile: Dict[str, List[str]]) -> Dict[str, List[ Union[int, List[int]] ]]:
         res = {
@@ -80,7 +92,6 @@ class CoursePreprocessor(Preprocessor):
         return res
     
     def encode_sentences(self, sents: List[str]) -> List[ List[int] ]:
-        print("Encode Sent")
         raise NotImplementedError
 
     def encode_course_id(self, course_id: List[str]) -> List[ int ]:
@@ -109,7 +120,7 @@ class CoursePreprocessor(Preprocessor):
 
 class BasicCoursePreprocessor(CoursePreprocessor):
 
-    def __init__(self, vocab_dir, column_names, year_offset=2014, month_offset=12):
+    def __init__(self, vocab_dir, column_names, pretrained_name: str, year_offset=2014, month_offset=12):
         super().__init__(column_names)
 
         self.vocab_dir = Path(vocab_dir)
@@ -135,15 +146,18 @@ class BasicCoursePreprocessor(CoursePreprocessor):
         self.offset = (year_offset, month_offset)
         self.__none_value__[8] = f"{year_offset}-{month_offset}-01 00:00:00.000"
 
-    def encode(self, course_profile: Dict[str, List[str]]) -> Dict[str, List[Union[int, List[int]]]]:
-        # skip all sentence property
-        res = {
-            key: func( course_profile[key] )
-            for key, func in zip(self.column_names, self.__encode_func__)
-            if func != self.encode_sentences
-        }
-        return res
+        self.tokenizer: PreTrainedTokenizer = AutoTokenizer.from_pretrained(pretrained_name)
 
+    def encode(self, course_profile: Dict[str, List[str]]) -> Dict[str, List[Union[int, List[int]]]]:
+        return super().encode(course_profile)
+
+    def encode_sentences(self, sents: List[str]) -> List[List[int]]:
+        res = self.tokenizer(
+            text=sents,
+            truncation=True,
+            max_length=256,
+        )
+        return res['input_ids']
 
     def encode_csv_sent(self, csv_sents: List[str], encoder: Vocab) -> List[ List[int] ]:
         return [ encoder.encode(x.split(',')) for x in csv_sents ]
@@ -176,6 +190,14 @@ class BasicCoursePreprocessor(CoursePreprocessor):
         ]
         return res
 
+    @property
+    def pad_token_id(self) -> int:
+        return self.tokenizer.pad_token_id
+    
+    @property
+    def unk_token_id(self) -> int:
+        return self.tokenizer.unk_token_id
+
 def course_item_features(item_csv):
     item_df = pd.read_csv( item_csv )
     
@@ -206,6 +228,13 @@ def prepare_course_datasets( course_data: Dataset, chapter_feature: Dict[str, Di
         batch_size=batch_size,
         batched=True,
     )
+
+    D = D.map(
+        course_p.description_to_text,
+        batch_size=batch_size,
+        batched=True,
+    )
+
     D = D.map(
         course_p.encode,
         batch_size=batch_size,
@@ -221,16 +250,18 @@ def prepare_course_datasets( course_data: Dataset, chapter_feature: Dict[str, Di
 if __name__ == "__main__":
     course_data = Dataset.from_csv( "../../data/courses.csv" )
     item_feat = course_item_features("../../data/course_chapter_items.csv" )
-    course_p = BasicCoursePreprocessor("../../cache/vocab", column_names=course_data.column_names)
+    course_p = BasicCoursePreprocessor(
+        vocab_dir="../../cache/vocab",
+        column_names=course_data.column_names,
+        pretrained_name='bert-base-multilingual-cased',
+    )
     batch_size = 32
 
 
     X = course_data.select( range(5) )
     Y = prepare_course_datasets( X, item_feat, course_p, batch_size, False )
     
-    # print( X['course_published_at_local'] )
-    # print()
-    # print(X.column_names)
+    print(X.column_names)
     for column in Y.column_names:
         if column in ['course_name','teacher_intro', 'description', 'will_learn', 'required_tools', 'recommended_background', 'target_group']: continue
         print(f"[{column}]:")
@@ -241,5 +272,14 @@ if __name__ == "__main__":
         print(f" -> {Y[column]}")
         print()
 
+    for column in Y.column_names:
+        if column not in ['course_name','teacher_intro', 'will_learn', 'description', 'required_tools', 'recommended_background', 'target_group']: continue
+        print(f"[{column}]:")
+        if column in X.column_names:
+            print(f"    {X[column]}")
+        else:
+            print( "    Course Item Feature")
+        print(f" -> {Y[column]}")
+        print()
 
 
