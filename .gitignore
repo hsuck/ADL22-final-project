@@ -1,5 +1,6 @@
 cache/
 data/*.csv
+output/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
