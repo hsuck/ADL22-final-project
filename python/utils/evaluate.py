@@ -1,5 +1,6 @@
 import pandas as pd
 from ml_metrics import mapk
+from typing import List
 
 def evaluate_map( actual_csv: str, pred_csv: str ):
     act = pd.read_csv(actual_csv).fillna('')
@@ -19,11 +20,21 @@ def evaluate_map( actual_csv: str, pred_csv: str ):
     for i in range( len(act) ):
         assert act['user_id'][i] == pred['user_id'][i]
 
-    return mapk(
-        actual = [ x.split(' ') for x in act[col] ],
-        predicted = [ x.split(' ') for x in pred[col] ],
-        k=50
+    return evaluate_map_str(
+        actual = act[col].to_list(),
+        pred = pred[col].to_list(),
     )
 
-
-    
+def evaluate_map_str( actual: List[str], pred: List[str] ):
+    """
+        ex:
+            actual: [ '1 2 3', '3 4' ]
+            pred  : [ '1 2', '']
+        return
+            mAP( [['1','2','3'], ['3','4']], [['1','2'], ['']] )
+    """
+    return mapk(
+        actual = [ x.split(' ') for x in actual ],
+        predicted = [ x.split(' ') for x in pred ],
+        k = 50,
+    )
