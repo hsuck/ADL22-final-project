@@ -205,8 +205,26 @@ class BertUserPreprocessor( BasicUserPreprocessor ):
 
     def encode_recreations(self, recreations: List[str]) -> List[List[int]]:
         return self.encode_sentences(recreations)
+
+
+class User2SeqPreprocessor( BasicUserPreprocessor ):
+    def __init__(self, vocab_dir: Union[str, Path], column_names, pretrained_name):
+        super().__init__(vocab_dir, column_names)
+
+        self.tokenizer = AutoTokenizer.from_pretrained(pretrained_name)
     
-def prepare_user_datasets( users_dataset: Dataset, user_p: UserPreprocessor, batch_size: int, with_bos_eos: bool ) -> Dataset:
+    def encode(self, user_profile: Dict[str, List[str]]) -> Dict[str, List[Union[int, List[int]]]]:
+        N = len(user_profile['user_id'])
+
+        user_profile['user_id'] = self.encode_user_id( user_profile['user_id'] )
+        user_profile['input_str'] = [
+            "[SEP]".join( [user_profile[col][i] for col in self.column_names if col != 'user_id'] )
+            for i in range(N)
+        ]
+        # user_profile['model_inputs'] = self.tokenizer(user_profile['input_str'])
+        return user_profile
+    
+def prepare_user_datasets( users_dataset: Dataset, user_p: UserPreprocessor, batch_size: int, with_bos_eos: bool=False ) -> Dataset:
     D = users_dataset.map(
         user_p.append_bos_eos if with_bos_eos else user_p.fill_none_as_unk,
         batch_size=batch_size,
@@ -217,32 +235,37 @@ def prepare_user_datasets( users_dataset: Dataset, user_p: UserPreprocessor, bat
         batch_size=batch_size,
         batched=True,
     )
-    D = D.remove_columns(['interests'])
-    D = D.sort("user_id")
+    # D = D.remove_columns(['interests'])
+    # D = D.sort("user_id")
     return D
 
 if __name__ == "__main__":
     
     user_data = datasets.Dataset.from_csv( "../../data/users.csv" )
-    user_p = BertUserPreprocessor(
-        "../../cache/vocab",
+    user_p = User2SeqPreprocessor(
+        # "../../cache/vocab",
         column_names=user_data.column_names,
         pretrained_name="bert-base-multilingual-cased"
     )
     batch_size = 32
-
+    
     for flag in [False]:
         X = user_data.select(range(5))
         Y = prepare_user_datasets( X, user_p, batch_size, flag )
         
         print()
         for column in X.column_names:
-            if column == 'interests': continue
+            # if column == 'interests': continue
             print(f"[{column}]:")
             print(f"  {X[column]} ->  {Y[column]}")
 
-        print(f"[interests]:")
-        print(f"  {X['interests']}")
-        print(f"  {Y['groups']}")
-        print(f"  {Y['subgroups']}")
-        print()
+        for column in Y.column_names:
+            if column in X.column_names: continue
+            print(f"[{column}]:")
+            print(f"  {Y[column]}")
+
+        # print(f"[interests]:")
+        # print(f"  {X['interests']}")
+        # print(f"  {Y['groups']}")
+        # print(f"  {Y['subgroups']}")
+        # print()
