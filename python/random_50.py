@@ -234,7 +234,7 @@ def get_subgroup_distribution():
 
     for cid, cnt in pcnt.items():
         sgs = [ sg2id[sg] for sg in course_feat[cid]['sub_groups'].split(',') ]
-        for sg in sgs:
+        for sg in np.unique(sgs):
             res[sg] += cnt
         
     total = np.sum( list(res.values()) )
@@ -314,7 +314,21 @@ def generate_course_pred_csv( input_file_path: Path, course_list: List, prob, ou
     df.to_csv( output_csv, index=False )
     return output_csv
 
+def generate_topic_pred_csv( input_file_path: Path, subgroup_list: List, prob, output_dir = Path("../output/sample") ):
+    output_dir.mkdir(parents=True, exist_ok=True)
 
+    df = pd.read_csv( str(input_file_path) )
+    col = 'subgroup'
+    should_sort = ( col == 'subgroup')
+
+    user_num = len(df)
+    pred = sample_over_prob( subgroup_list, prob=prob, num_of_sample=user_num, should_sort=should_sort)
+    df[col] = pred
+
+
+    output_csv = str(output_dir / f"{input_file_path.stem}_pred.csv")
+    df.to_csv( output_csv, index=False )
+    return output_csv
 
 def uniform_sample():
     eval_files = ['val_seen.csv', 'val_unseen.csv', 'val_seen_group.csv', 'val_unseen_group.csv' ]
@@ -365,40 +379,74 @@ if __name__ == "__main__":
     """
     # draw_joint_price_pubtime_distribution()
 
-    course2prob = get_course_prob()
-    courses = list(course2prob.keys())
-    prob = normalize(list(course2prob.values()))
+    output_dir = Path("../output/test")
 
-    from utils.submission_format import course_to_topic_pred
+    # from utils.submission_format import course_to_topic_pred
+    # course2prob = get_course_prob()
+    # courses = list(course2prob.keys())
+    # prob = normalize(list(course2prob.values()))
+
+    # eval_files = ['val_seen.csv', 'val_unseen.csv' ]
+    # for name in eval_files:
+    #     file_path = data_dir / name
+    #     output_path = generate_course_pred_csv( file_path, courses, prob, output_dir )
+
+    #     topic_actual = data_dir / f"{file_path.stem}_group.csv"
+    #     topic_pred = output_dir / f"{file_path.stem}_group_pred_c2t.csv"
+    #     course_to_topic_pred(
+    #             str(output_path),
+    #             "../data/courses.csv",
+    #             "../data/subgroups.csv",
+    #     ).to_csv( str(topic_pred), index=False )
+
+    #     print(f"{file_path.stem}:")
+    #     print(f"  course mAP@50: {evaluate_map( str(file_path), str(output_path) )}")
+    #     print(f"  c->t   mAP@50: {evaluate_map( str(topic_actual), str(topic_pred) )}")
+
+
+    # test_files = ['test_seen.csv', 'test_unseen.csv' ]
+    # for name in test_files:
+    #     file_path = data_dir / name
+        
+    #     print(f"Inference {file_path.stem} Course / C->T Prediction ...")
+    #     output_path = generate_course_pred_csv( file_path, courses, prob, output_dir )
+    #     topic_pred = output_dir / f"{file_path.stem}_group_pred.csv"
+    #     course_to_topic_pred(
+    #             str(output_path),
+    #             "../data/courses.csv",
+    #             "../data/subgroups.csv",
+    #     ).to_csv( str(topic_pred), index=False )
+    #     print("Finish")
+
+
+    _, sg_pfunc = get_subgroup_distribution()
+    eval_files = ['val_seen_group.csv', 'val_unseen_group.csv' ]
     
-    output_dir = Path("../output/month_price_sample")
-    eval_files = ['val_seen.csv', 'val_unseen.csv' ]
+    subgroup_df = pd.read_csv( str(data_dir/'subgroups.csv') )
+    subgroup_list = subgroup_df['subgroup_id'].to_numpy()
+    sg_prob = np.array([ sg_pfunc(name) for name in subgroup_df['subgroup_name'] ])
+
+    # only sample from top-50
+    order = np.argsort(sg_prob)
+    sg_prob[ order[:-50] ] = 0
+    # print(sg_prob)
+    sg_prob = normalize(sg_prob)
     for name in eval_files:
         file_path = data_dir / name
-        output_path = generate_course_pred_csv( file_path, courses, prob, output_dir )
-
-        topic_actual = data_dir / f"{file_path.stem}_group.csv"
-        topic_pred = output_dir / f"{file_path.stem}_group_pred.csv"
-        course_to_topic_pred(
-                str(output_path),
-                "../data/courses.csv",
-                "../data/subgroups.csv",
-        ).to_csv( str(topic_pred), index=False )
+        # the result is sorted subgroups
+        output_path = generate_topic_pred_csv( file_path, subgroup_list, sg_prob, output_dir )
 
         print(f"{file_path.stem}:")
-        print(f"  course mAP@50: {evaluate_map( str(file_path), str(output_path) )}")
-        print(f"  topic  mAP@50: {evaluate_map( str(topic_actual), str(topic_pred) )}")
+        print(f"  topic  mAP@50: {evaluate_map( str(file_path), str(output_path) )}")
 
-    test_files = ['test_seen.csv', 'test_unseen.csv' ]
+    test_files = ['test_seen_group.csv', 'test_unseen_group.csv' ]
     for name in test_files:
         file_path = data_dir / name
         
-        print(f"Inference {file_path.stem} Course / Topic Prediction ...")
-        output_path = generate_course_pred_csv( file_path, courses, prob, output_dir )
-        topic_pred = output_dir / f"{file_path.stem}_group_pred.csv"
-        course_to_topic_pred(
-                str(output_path),
-                "../data/courses.csv",
-                "../data/subgroups.csv",
-        ).to_csv( str(topic_pred), index=False )
-        print("Finish")
+        file_path = data_dir / name
+        output_path = generate_topic_pred_csv( file_path, subgroup_list, sg_prob, output_dir )
+
+        print(f"Inference {file_path.stem}  Topic Prediction ...")
+        print(f"Finish {output_path}")
+
+
