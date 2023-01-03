@@ -1,0 +1,26 @@
+--- dssm.py	2023-01-04 00:12:42.223690529 +0800
++++ ./torch-rechub/torch_rechub/models/matching/dssm.py	2023-01-04 00:12:09.281353000 +0800
+@@ -1,6 +1,6 @@
+ """
+ Date: create on 12/05/2022, update on 20/05/2022
+-References: 
++References:
+     paper: (CIKM'2013) Learning Deep Structured Semantic Models for Web Search using Clickthrough Data
+     url: https://posenhuang.github.io/papers/cikm2013_DSSM_fullversion.pdf
+     code: https://github.com/bbruceyuan/DeepMatch-Torch/blob/main/deepmatch_torch/models/dssm.py
+@@ -46,7 +46,7 @@
+ 
+         # calculate cosine score
+         y = torch.mul(user_embedding, item_embedding).sum(dim=1)
+-        # y = y / self.temperature
++        y = y / self.temperature
+         return torch.sigmoid(y)
+ 
+     def user_tower(self, x):
+@@ -63,4 +63,4 @@
+         input_item = self.embedding(x, self.item_features, squeeze_dim=True)  #[batch_size, num_features*embed_dim]
+         item_embedding = self.item_mlp(input_item)  #[batch_size, item_params["dims"][-1]]
+         item_embedding = F.normalize(item_embedding, p=2, dim=1)
+-        return item_embedding
+\ No newline at end of file
++        return item_embedding
