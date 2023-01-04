@@ -16,6 +16,9 @@ python setup.py install
 pip install -r requirements.txt
 ```
 
+## Preprocessing
+Before training, please reference ./python/utils/README.md to perform preprocessing.
+
 ## Usage
 ```
 usage: train_dssm.py [-h] [--output OUTPUT_FILE] [--model_path MODEL_PATH] [--user_file USER_FILE] [--course_file COURSE_FILE] [--vocab_path VOCAB_PATH] [--train_file TRAIN_FILE]
