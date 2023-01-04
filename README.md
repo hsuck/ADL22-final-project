@@ -17,7 +17,7 @@ pip install -r requirements.txt
 ```
 
 ## Preprocessing
-Before training, please reference ./python/utils/README.md to perform preprocessing.
+Before training, please go to [./python/utils/](https://github.com/hsuck/ADL22-final-project/tree/ricky/python/utils) to perform preprocessing.
 
 ## Usage
 ```
