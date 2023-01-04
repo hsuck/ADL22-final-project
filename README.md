@@ -50,3 +50,9 @@ optional arguments:
                         weight decay (default: 1e-06)
   --epoch EPOCH         number of training epoch (default: 10)
 ```
+
+## Training and Testing with default arguments
+```
+python3 train_dssm.py # training
+python3 train_dssm.py --test # testing
+```
