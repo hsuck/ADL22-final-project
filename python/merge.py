@@ -17,7 +17,7 @@ if __name__ == "__main__":
     print( user_df )
 
     df = course_to_topic_pred(
-        "./answer.csv",
+        "./predictions.csv",
         "../data/courses.csv",
         "../data/subgroups.csv"
     )
@@ -28,6 +28,7 @@ if __name__ == "__main__":
     print( _, sg_pfunc )
 
     df = pd.merge( df, user_df, how = 'left', on = 'user_id' )
+    df = df.fillna('')
     print( df )
     sg = []
     for i, data in df.iterrows():
