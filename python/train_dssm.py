@@ -453,6 +453,11 @@ def main():
         default = 10,
         help = "number of training epoch",
     )
+    parser.add_argument(
+        "--batch_size",
+        type = int,
+        default = 4096,
+    )
     args = parser.parse_args()
 
     if not os.path.exists(args.model_path):
@@ -482,8 +487,8 @@ def main():
     all_item = df_to_dict( course_df )
 
     dg = MatchDataGenerator( x = x_train, y = y_train )
-    train_dl, val_dl, item_dl = dg.generate_dataloader( x_val, all_item, batch_size = 4096 )
-    _, test_dl, item_dl = dg.generate_dataloader( x_test, all_item, batch_size = 4096 )
+    train_dl, val_dl, item_dl = dg.generate_dataloader( x_val, all_item, batch_size = args.batch_size )
+    _, test_dl, item_dl = dg.generate_dataloader( x_test, all_item, batch_size = args.batch_size )
 
     #####################
     ### training
