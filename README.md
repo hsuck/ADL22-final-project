@@ -55,6 +55,18 @@ optional arguments:
   --epoch EPOCH         number of training epoch (default: 10)
   --batch_size BATCH_SIZE
 ```
+```
+usage: merge.py [-h] [--output OUTPUT_FILE] [--input INPUT_FILE] [--data_path DATA_PATH]
+
+Append the number of subgroups to 50 for each user
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --output OUTPUT_FILE  output file name (default: subgroups.csv)
+  --input INPUT_FILE    the path of course prediction file (default: ./predictions.csv)
+  --data_path DATA_PATH
+                        the path of data directory (default: ../data/)
+```
 Note: When using option `--dnn`, you need to pass a sequence, e.g. --dnn 128 64
 ## Training and Testing with default arguments
 ```
