@@ -55,6 +55,7 @@ optional arguments:
   --epoch EPOCH         number of training epoch (default: 10)
   --batch_size BATCH_SIZE
 ```
+Note: When using option `--dnn`, you need to pass a sequence, e.g. --dnn 128 64
 ```
 usage: merge.py [-h] [--output OUTPUT_FILE] [--input INPUT_FILE] [--data_path DATA_PATH]
 
@@ -67,7 +68,7 @@ optional arguments:
   --data_path DATA_PATH
                         the path of data directory (default: ../data/)
 ```
-Note: When using option `--dnn`, you need to pass a sequence, e.g. --dnn 128 64
+
 ## Training and Testing with default arguments
 ```
 python3 train_dssm.py # training
