@@ -17,12 +17,13 @@ pip install -r requirements.txt
 ```
 
 ## Preprocessing
-Before training, please go to [./python/utils/](https://github.com/hsuck/ADL22-final-project/tree/ricky/python/utils) to perform preprocessing.
+Before training, please go to [python/utils/](https://github.com/hsuck/ADL22-final-project/tree/ricky/python/utils) to perform preprocessing.
 ```
 python3 vocab.py
 ```
 Note: default path to put vocabs is `../cache/vocab`
 ## Usage
+All scripts are in `python/`
 ```
 usage: train_dssm.py [-h] [--output OUTPUT_FILE] [--model_path MODEL_PATH] [--user_file USER_FILE] [--course_file COURSE_FILE] [--vocab_path VOCAB_PATH] [--train_file TRAIN_FILE]
                      [--val_file VAL_FILE] [--test_file TEST_FILE] [--test] [--embed_size EMBED_SIZE] [--dnn DNN [DNN ...]] [--temp TEMP] [--dropout DROPOUT] [--lr LR]
