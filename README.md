@@ -23,7 +23,7 @@ Before training, please go to [./python/utils/](https://github.com/hsuck/ADL22-f
 ```
 usage: train_dssm.py [-h] [--output OUTPUT_FILE] [--model_path MODEL_PATH] [--user_file USER_FILE] [--course_file COURSE_FILE] [--vocab_path VOCAB_PATH] [--train_file TRAIN_FILE]
                      [--val_file VAL_FILE] [--test_file TEST_FILE] [--test] [--embed_size EMBED_SIZE] [--dnn DNN [DNN ...]] [--temp TEMP] [--dropout DROPOUT] [--lr LR]
-                     [--weight_decay WEIGHT_DECAY] [--epoch EPOCH]
+                     [--weight_decay WEIGHT_DECAY] [--epoch EPOCH] [--batch_size BATCH_SIZE]
 
 Generates personalized recommendations for each user
 
@@ -53,6 +53,7 @@ optional arguments:
   --weight_decay WEIGHT_DECAY
                         weight decay (default: 1e-06)
   --epoch EPOCH         number of training epoch (default: 10)
+  --batch_size BATCH_SIZE
 ```
 
 ## Training and Testing with default arguments
