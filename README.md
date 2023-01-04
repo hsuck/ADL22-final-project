@@ -46,7 +46,7 @@ optional arguments:
   --test
   --embed_size EMBED_SIZE
                         user & course's embedding size (default: 16)
-  --dnn DNN [DNN ...]   arch of user & course tower's DNN (default: [256, 128, 64])
+  --dnn DNN [DNN ...]   user & course tower's DNN (default: [256, 128, 64])
   --temp TEMP           temperature (default: 1)
   --dropout DROPOUT     doupout rate (default: 0)
   --lr LR               learning rate (default: 0.0001)
