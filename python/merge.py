@@ -4,24 +4,48 @@ from random_50 import get_subgroup_distribution
 import numpy as np
 import pandas as pd
 from collections import OrderedDict, Counter
+import argparse
 
 if __name__ == "__main__":
-    # user_p = BasicUserPreprocessor("../cache/vocab", column_names=['user_id'])
+    parser = argparse.ArgumentParser(
+        description = "Append the number of subgroups to 50 for each user",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument(
+        "--output",
+        type = str,
+        default = "subgroups.csv",
+        dest = "output_file",
+        help = "output file name",
+    )
+    parser.add_argument(
+        "--input",
+        type = str,
+        default = "./predictions.csv",
+        dest = "input_file",
+        help = "the path of course prediction file",
+    )
+    parser.add_argument(
+        "--data_path",
+        type = str,
+        default = "../data/",
+        dest = "data_path",
+        help = "the path of data directory",
+    )
+    args = parser.parse_args()
 
     user_df = course_to_topic_pred(
-        "../data/val_seen.csv",
-        "../data/courses.csv",
-        "../data/subgroups.csv"
+        args.data_path + "val_seen.csv",
+        args.data_path + "courses.csv",
+        args.data_path + "subgroups.csv"
     )
-    # user_df['user_id'] = user_p.encode_user_id( user_df['user_id'] )
     print( user_df )
 
     df = course_to_topic_pred(
-        "./predictions.csv",
-        "../data/courses.csv",
-        "../data/subgroups.csv"
+        args.input_file,
+        args.data_path + "courses.csv",
+        args.data_path + "subgroups.csv"
     )
-    # df['user_id'] = user_p.encode_user_id( df['user_id'] )
     print(df)
 
     _, sg_pfunc = get_subgroup_distribution()
@@ -63,4 +87,4 @@ if __name__ == "__main__":
     df.rename( columns = { 'subgroup_x': 'subgroup' }, inplace = True )
     print( df )
 
-    df.to_csv('./subgroup.csv', index = 0)
+    df.to_csv(args.output_file, index = 0)
