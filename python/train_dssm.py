@@ -208,7 +208,7 @@ def prepare_test_dataset( test_file, user_df, course_df, user_p, course_p ):
     print('Done')
     return x_test, y_test
 
-def create_model( embed_size, temp, dropout, lr, weight_decay, epoch, model_path ):
+def create_model( embed_size, dnn, temp, dropout, lr, weight_decay, epoch, model_path ):
     print('Creating user & course features and building model & trainer...', flush=True)
     user_features = [
         SparseFeature( 'user_id', vocab_size = 130566, embed_dim = embed_size ),
@@ -268,12 +268,12 @@ def create_model( embed_size, temp, dropout, lr, weight_decay, epoch, model_path
                   course_features,
                   temperature = temp,
                   user_params = {
-                      "dims": [256, 128, 64],
+                      "dims": dnn,
                       "activation": 'prelu',
                       "dropout": dropout,
                   },
                   item_params = {
-                      "dims": [256, 128, 64],
+                      "dims": dnn,
                       "activation": 'prelu',
                       "dropout": dropout,
                   } )
@@ -379,7 +379,8 @@ def main():
         "--vocab_path",
         type = str,
         default = "../cache/vocab",
-        dest = "vocab_path"
+        dest = "vocab_path",
+        help = "the path of vocab directory",
     )
     parser.add_argument(
         "--train_file",
@@ -411,6 +412,14 @@ def main():
         default = 16,
         dest = "embed_size",
         help = "user & course's embedding size",
+    )
+    parser.add_argument(
+        "--dnn",
+        type = int,
+        nargs = '+',
+        default = [256, 128, 64],
+        dest = "dnn",
+        help = "user & course tower's DNN",
     )
     parser.add_argument(
         "--temp",
@@ -459,7 +468,7 @@ def main():
     ### train dataset & trainer
     #####################
     x_train, y_train = prepare_train_dataset( args.train_file, user_df, course_df, user_p, course_p )
-    trainer, model = create_model( args.embed_size, args.temp, args.dropout, args.lr, args.weight_decay, args.epoch, args.model_path )
+    trainer, model = create_model( args.embed_size, args.dnn, args.temp, args.dropout, args.lr, args.weight_decay, args.epoch, args.model_path )
 
     #####################
     ### val & test dataset
@@ -473,8 +482,8 @@ def main():
     all_item = df_to_dict( course_df )
 
     dg = MatchDataGenerator( x = x_train, y = y_train )
-    train_dl, val_dl,  item_dl = dg.generate_dataloader( x_val, all_item, batch_size = 4096 )
-    _, test_dl,  item_dl = dg.generate_dataloader( x_test, all_item, batch_size = 4096 )
+    train_dl, val_dl, item_dl = dg.generate_dataloader( x_val, all_item, batch_size = 4096 )
+    _, test_dl, item_dl = dg.generate_dataloader( x_test, all_item, batch_size = 4096 )
 
     #####################
     ### training
