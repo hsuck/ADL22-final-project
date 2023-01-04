@@ -19,8 +19,8 @@ pip install -r requirements.txt
 ## Usage
 ```
 usage: train_dssm.py [-h] [--output OUTPUT_FILE] [--model_path MODEL_PATH] [--user_file USER_FILE] [--course_file COURSE_FILE] [--vocab_path VOCAB_PATH] [--train_file TRAIN_FILE]
-                     [--val_file VAL_FILE] [--test_file TEST_FILE] [--test] [--embed_size EMBED_SIZE] [--temp TEMP] [--dropout DROPOUT] [--lr LR] [--weight_decay WEIGHT_DECAY]
-                     [--epoch EPOCH]
+                     [--val_file VAL_FILE] [--test_file TEST_FILE] [--test] [--embed_size EMBED_SIZE] [--dnn DNN [DNN ...]] [--temp TEMP] [--dropout DROPOUT] [--lr LR]
+                     [--weight_decay WEIGHT_DECAY] [--epoch EPOCH]
 
 Generates personalized recommendations for each user
 
@@ -43,6 +43,7 @@ optional arguments:
   --test
   --embed_size EMBED_SIZE
                         user & course's embedding size (default: 16)
+  --dnn DNN [DNN ...]   arch of user & course tower's DNN (default: [256, 128, 64])
   --temp TEMP           temperature (default: 1)
   --dropout DROPOUT     doupout rate (default: 0)
   --lr LR               learning rate (default: 0.0001)
