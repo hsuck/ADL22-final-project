@@ -92,6 +92,7 @@ python3 merge.py # change course_id to corresponding subgroup for each user
 ```bash
 bash download.sh
 ```
+The `model.pth` will saved in ./python/models/seen and ./python/models/unseen
 ### Seen domain 
 #### Course Prediction
 ```bash
