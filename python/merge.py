@@ -1,5 +1,6 @@
 from utils.user_preprocessor import BasicUserPreprocessor
 from utils.submission_format import course_to_topic_pred
+from utils.average_precision import *
 from random_50 import get_subgroup_distribution
 import numpy as np
 import pandas as pd
@@ -32,10 +33,17 @@ if __name__ == "__main__":
         dest = "data_path",
         help = "the path of data directory",
     )
+    parser.add_argument(
+        "--val_file",
+        type = str,
+        default = "../data/val_seen.csv",
+        dest = "val_file",
+        help = "val data path",
+    )
     args = parser.parse_args()
 
     user_df = course_to_topic_pred(
-        args.data_path + "val_seen.csv",
+        args.data_path + args.val_file,
         args.data_path + "courses.csv",
         args.data_path + "subgroups.csv"
     )
@@ -88,3 +96,6 @@ if __name__ == "__main__":
     print( df )
 
     df.to_csv(args.output_file, index = 0)
+    print("Computing MAP@K metrics")
+    score = mapk( user_df['subgroup'], df['subgroup'], k = 50 )
+    print( 'MAP@50:', score )
