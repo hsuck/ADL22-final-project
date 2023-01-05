@@ -22,11 +22,27 @@ def course_to_topic_pred(
         in zip(df_info['course_id'], df_info['sub_groups'])
     }
 
-    
-    df_pred['subgroup'] = [
-        sorted( np.unique( [ tid for cid in cids.split(' ') for tid in c2t[cid]] ) )
+    idx = [
+        np.unique( [ tid for cid in cids.split(' ') for tid in c2t[cid]], return_index = True )[1]
         for cids in df_pred['course_id']
     ]
+    # print(idx[0])
+
+    df_pred['subgroup'] = [
+        [ tid for cid in cids.split(' ') for tid in c2t[cid]]
+        for cids in df_pred['course_id']
+    ]
+
+    unsorted_sg = []
+    for idx, sg in zip( idx, df_pred['subgroup'] ):
+        t = [ sg[i] for i in sorted( idx ) ]
+        unsorted_sg.append( t )
+
+    df_pred['subgroup'] = unsorted_sg
+    # df_pred['subgroup'] = [
+    #     sorted( np.unique( [ tid for cid in cids.split(' ') for tid in c2t[cid]] ) )
+    #     for cids in df_pred['course_id']
+    # ]
     df_pred['subgroup'] = [
         ' '.join( [ str(x) for x in topic_list ] )
         for topic_list in df_pred['subgroup']
