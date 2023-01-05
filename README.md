@@ -85,7 +85,7 @@ python3 merge.py # change course_id to corresponding subgroup for each user
 ```
 
 ## Reproduce
-> :warning: **If you any concern, please check the above usage.**
+> :warning: **If you any confusion, please check the above usage.**
 ### Seen domain 
 #### Course Prediction
 ```
