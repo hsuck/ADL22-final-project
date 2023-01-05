@@ -85,6 +85,7 @@ python3 merge.py # change course_id to corresponding subgroup for each user
 ```
 
 ## Reproduce
+If you any concern, please check the above usage.
 ### Seen domain 
 #### Course Prediction
 ```
@@ -99,12 +100,12 @@ python3 train_dssm.py --dropout 0.2 --weight_decay 1e-5 \
 
 # testing
 python3 train_dssm.py --dropout 0.2 --test --output prediction.csv \
-  --user_file path/to/users.csv \ # default: ../data/users.csv
-  --course_file path/to/courses.csv \ # default: ../data/courses.csv
-  --vocab_path path/to/vocab/ \ # default: ../cache/vocab/
-  --train_file path/to/train.csv \ # default: ../data/train.csv
-  --val_file path/to/val_seen.csv \ # default: ../data/val_seen.csv
-  --test_file path/to/test_seen.csv # default: ../data/test_seen.csv
+  --user_file path/to/users.csv \
+  --course_file path/to/courses.csv \
+  --vocab_path path/to/vocab/ \
+  --train_file path/to/train.csv \
+  --val_file path/to/val_seen.csv \
+  --test_file path/to/test_seen.csv
 ```
 #### Topic Prediction
 ```
@@ -116,21 +117,21 @@ python3 mergy.py --input prediction.csv --data_path {data path} --output subgrou
 ```
 # training
 python3 train_dssm.py --embed_size 256 --weight_decay 1e-5 \
-  --user_file path/to/users.csv \ # default: ../data/users.csv
-  --course_file path/to/courses.csv \ # default: ../data/courses.csv
-  --vocab_path path/to/vocab/ \ # default: ../cache/vocab/
-  --train_file path/to/train.csv \ # default: ../data/train.csv
-  --val_file path/to/val_unseen.csv \ # default: ../data/val_unseen.csv
-  --test_file path/to/test_unseen.csv # default: ../data/test_unseen.csv
+  --user_file path/to/users.csv \
+  --course_file path/to/courses.csv \
+  --vocab_path path/to/vocab/ \
+  --train_file path/to/train.csv \
+  --val_file path/to/val_unseen.csv \
+  --test_file path/to/test_unseen.csv
 
 # testing
 python3 train_dssm.py --embed_size 256 --test --output prediction.csv \
-  --user_file path/to/users.csv \ # default: ../data/users.csv
-  --course_file path/to/courses.csv \ # default: ../data/courses.csv
-  --vocab_path path/to/vocab/ \ # default: ../cache/vocab/
-  --train_file path/to/train.csv \ # default: ../data/train.csv
-  --val_file path/to/val_unseen.csv \ # default: ../data/val_unseen.csv
-  --test_file path/to/test_unseen.csv # default: ../data/test_unseen.csv
+  --user_file path/to/users.csv \
+  --course_file path/to/courses.csv \
+  --vocab_path path/to/vocab/ \
+  --train_file path/to/train.csv \
+  --val_file path/to/val_unseen.csv \
+  --test_file path/to/test_unseen.csv
 ```
 #### Topic Prediction
 ```
