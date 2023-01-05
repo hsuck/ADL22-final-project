@@ -6,15 +6,14 @@
 conda create --name <env_name> python=3.9
 conda activate <env_name>
 
+/* install packages */
+pip install -r requirements.txt
+
 /* install torch-rechub */
 git clone https://github.com/datawhalechina/torch-rechub.git
 patch -p0 < ./dssm.patch
 cd torch-rechub
 python setup.py install
-
-/* install other packages */
-cd ..
-pip install -r requirements.txt
 ```
 
 ## Preprocessing
