@@ -7,6 +7,7 @@ conda create --name <env_name> python=3.9
 conda activate <env_name>
 
 /* install packages */
+pip install "setuptools<58.0.0" # downgrading setuptools to install ml_metrics
 pip install -r requirements.txt
 
 /* install torch-rechub */
