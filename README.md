@@ -2,16 +2,16 @@
 
 ## Installation
 ```bash
-/* create conda environment */
+# create conda environment
 conda create --name <env_name> python=3.9
 conda activate <env_name>
 
-/* install packages */
+# install packages
 pip install "setuptools<58.0.0" # downgrading setuptools to install ml_metrics
 pip install -r requirements.txt
 
-/* install torch-rechub */
-/* Don't install torch-rehub by other ways. */
+# install torch-rechub
+# Don't install torch-rehub by other ways.
 git clone https://github.com/datawhalechina/torch-rechub.git
 patch -p0 < ./dssm.patch
 cd torch-rechub
