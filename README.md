@@ -94,6 +94,7 @@ bash download.sh
 ```
 The `model.pth` will saved in ./python/models/seen and ./python/models/unseen
 ### Seen domain 
+If you have downloaded `model.pth`, you can do testing directly.
 #### Course Prediction
 ```bash
 # training
@@ -126,6 +127,7 @@ python3 mergy.py --input seen_course.csv \
 ```
 
 ### Unseen domain 
+If you have downloaded `model.pth`, you can do testing directly.
 #### Course Prediction
 ```bash
 # training
