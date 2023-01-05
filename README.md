@@ -20,14 +20,14 @@ python setup.py install
 
 ## Preprocessing
 Before training, please go to [python/utils/](https://github.com/hsuck/ADL22-final-project/tree/ricky/python/utils) to perform preprocessing.
-```
+```bash
 cd python/utils
 python3 vocab.py
 ```
 Note: default path to put vocabs is `cache/vocab`
 ## Usage
 All scripts are in `python/`
-```
+```bash
 usage: train_dssm.py [-h] [--output OUTPUT_FILE] [--model_path MODEL_PATH] [--user_file USER_FILE] [--course_file COURSE_FILE] [--vocab_path VOCAB_PATH] [--train_file TRAIN_FILE]
                      [--val_file VAL_FILE] [--test_file TEST_FILE] [--test] [--embed_size EMBED_SIZE] [--dnn DNN [DNN ...]] [--temp TEMP] [--dropout DROPOUT] [--lr LR]
                      [--weight_decay WEIGHT_DECAY] [--epoch EPOCH] [--batch_size BATCH_SIZE]
@@ -63,7 +63,7 @@ optional arguments:
   --batch_size BATCH_SIZE
 ```
 Note: When using option `--dnn`, you need to pass a sequence, e.g. --dnn 128 64
-```
+```bash
 usage: merge.py [-h] [--output OUTPUT_FILE] [--input INPUT_FILE] [--data_path DATA_PATH]
 
 Append the number of subgroups to 50 for each user
@@ -77,7 +77,7 @@ optional arguments:
 ```
 
 ## Training and Testing with default arguments
-```
+```bash
 python3 train_dssm.py # training
 python3 train_dssm.py --test # testing
 
@@ -88,7 +88,7 @@ python3 merge.py # change course_id to corresponding subgroup for each user
 > :warning: **If you any confusion, please check the above usage.**
 ### Seen domain 
 #### Course Prediction
-```
+```bash
 # training
 python3 train_dssm.py --dropout 0.2 --weight_decay 1e-5 \
   --user_file path/to/users.csv \
@@ -110,13 +110,13 @@ python3 train_dssm.py --dropout 0.2 --test --output seen_course.csv \
   --model_path ./models/seen/
 ```
 #### Topic Prediction
-```
+```bash
 python3 mergy.py --input seen_course.csv --data_path path/to/data/ --output seen_subgroup.csv # need to predict course first
 ```
 
 ### Unseen domain 
 #### Course Prediction
-```
+```bash
 # training
 python3 train_dssm.py --embed_size 256 --weight_decay 1e-5 \
   --user_file path/to/users.csv \
@@ -138,6 +138,6 @@ python3 train_dssm.py --embed_size 256 --test --output unseen_course.csv \
   --model_path ./models/unseen/
 ```
 #### Topic Prediction
-```
+```bash
 python3 mergy.py --input unseen_course.csv --data_path path/to/data/ --output unseen_subgroup.csv # need to predict course first
 ```
