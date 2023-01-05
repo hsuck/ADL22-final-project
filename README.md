@@ -11,6 +11,7 @@ pip install "setuptools<58.0.0" # downgrading setuptools to install ml_metrics
 pip install -r requirements.txt
 
 /* install torch-rechub */
+/* Don't install torch-rehub by other ways. */
 git clone https://github.com/datawhalechina/torch-rechub.git
 patch -p0 < ./dssm.patch
 cd torch-rechub
@@ -87,8 +88,23 @@ python3 merge.py # change course_id to corresponding subgroup for each user
 ### Seen domain 
 #### Course Prediction
 ```
-python3 train_dssm.py --dropout 0.2 --weight_decay 1e-5 # training
-python3 train_dssm.py --dropout 0.2 --test --output prediction.csv # testing
+# training
+python3 train_dssm.py --dropout 0.2 --weight_decay 1e-5 \
+--user_file path/to/users.csv \ # default: ../data/users.csv
+--course_file path/to/courses.csv \ # default: ../data/courses.csv
+--vocab_path path/to/vocab/ \ # default: ../cache/vocab/
+--train_file path/to/train.csv \ # default: ../data/train.csv
+--val_file path/to/val_seen.csv \ # default: ../data/val_seen.csv
+--test_file path/to/test_seen.csv # default: ../data/test_seen.csv
+
+# testing
+python3 train_dssm.py --dropout 0.2 --test --output prediction.csv \
+--user_file path/to/users.csv \ # default: ../data/users.csv
+--course_file path/to/courses.csv \ # default: ../data/courses.csv
+--vocab_path path/to/vocab/ \ # default: ../cache/vocab/
+--train_file path/to/train.csv \ # default: ../data/train.csv
+--val_file path/to/val_seen.csv \ # default: ../data/val_seen.csv
+--test_file path/to/test_seen.csv # default: ../data/test_seen.csv
 ```
 #### Topic Prediction
 ```
@@ -98,8 +114,23 @@ python3 mergy.py --input prediction.csv --data_path {data path} --output subgrou
 ### Unseen domain 
 #### Course Prediction
 ```
-python3 train_dssm.py --embed_size 256 --weight_decay 1e-5 # training
-python3 train_dssm.py --embed_size 256 --test --output prediction.csv # testing
+# training
+python3 train_dssm.py --embed_size 256 --weight_decay 1e-5 \
+--user_file path/to/users.csv \ # default: ../data/users.csv
+--course_file path/to/courses.csv \ # default: ../data/courses.csv
+--vocab_path path/to/vocab/ \ # default: ../cache/vocab/
+--train_file path/to/train.csv \ # default: ../data/train.csv
+--val_file path/to/val_unseen.csv \ # default: ../data/val_unseen.csv
+--test_file path/to/test_unseen.csv # default: ../data/test_unseen.csv
+
+# testing
+python3 train_dssm.py --embed_size 256 --test --output prediction.csv \
+--user_file path/to/users.csv \ # default: ../data/users.csv
+--course_file path/to/courses.csv \ # default: ../data/courses.csv
+--vocab_path path/to/vocab/ \ # default: ../cache/vocab/
+--train_file path/to/train.csv \ # default: ../data/train.csv
+--val_file path/to/val_unseen.csv \ # default: ../data/val_unseen.csv
+--test_file path/to/test_unseen.csv # default: ../data/test_unseen.csv
 ```
 #### Topic Prediction
 ```
