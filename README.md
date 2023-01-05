@@ -1,7 +1,7 @@
 # ADL22-final-project
 
 ## Installation
-```
+```bash
 /* create conda environment */
 conda create --name <env_name> python=3.9
 conda activate <env_name>
