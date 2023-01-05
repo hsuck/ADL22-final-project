@@ -64,7 +64,7 @@ optional arguments:
 ```
 Note: When using option `--dnn`, you need to pass a sequence, e.g. --dnn 128 64
 ```text
-usage: merge.py [-h] [--output OUTPUT_FILE] [--input INPUT_FILE] [--data_path DATA_PATH]
+usage: merge.py [-h] [--output OUTPUT_FILE] [--input INPUT_FILE] [--data_path DATA_PATH] [--val_file VAL_FILE]
 
 Append the number of subgroups to 50 for each user
 
@@ -74,6 +74,7 @@ optional arguments:
   --input INPUT_FILE    the path of course prediction file (default: ./predictions.csv)
   --data_path DATA_PATH
                         the path of data directory (default: ../data/)
+  --val_file VAL_FILE   val data path (default: ../data/val_seen.csv)
 ```
 
 ## Training and Testing with default arguments
@@ -111,7 +112,10 @@ python3 train_dssm.py --dropout 0.2 --test --output seen_course.csv \
 ```
 #### Topic Prediction
 ```bash
-python3 mergy.py --input seen_course.csv --data_path path/to/data/ --output seen_subgroup.csv # need to predict course first
+# need to predict course first
+python3 mergy.py --input seen_course.csv \
+  --data_path path/to/data/ 
+  --output seen_subgroup.csv
 ```
 
 ### Unseen domain 
@@ -139,5 +143,8 @@ python3 train_dssm.py --embed_size 256 --test --output unseen_course.csv \
 ```
 #### Topic Prediction
 ```bash
-python3 mergy.py --input unseen_course.csv --data_path path/to/data/ --output unseen_subgroup.csv # need to predict course first
+# need to predict course first
+python3 mergy.py --input unseen_course.csv \
+  --data_path path/to/data/ \
+  --output unseen_subgroup.csv
 ```
