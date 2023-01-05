@@ -114,7 +114,8 @@ python3 train_dssm.py --dropout 0.2 --test --output seen_course.csv \
 ```bash
 # need to predict course first
 python3 mergy.py --input seen_course.csv \
-  --data_path path/to/data/ 
+  --data_path path/to/data/ \
+  --val_file path/to/val_seen.csv \
   --output seen_subgroup.csv
 ```
 
@@ -146,5 +147,6 @@ python3 train_dssm.py --embed_size 256 --test --output unseen_course.csv \
 # need to predict course first
 python3 mergy.py --input unseen_course.csv \
   --data_path path/to/data/ \
+  --val_file path/to/val_unseen.csv \
   --output unseen_subgroup.csv
 ```
