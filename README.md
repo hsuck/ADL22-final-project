@@ -95,7 +95,7 @@ python3 train_dssm.py --dropout 0.2 --test --output prediction.csv # testing
 python3 mergy.py --input prediction.csv --data_path {data path} --output subgroup.csv # need to predict course first
 ```
 
-### Uneen domain 
+### Unseen domain 
 #### Course Prediction
 ```
 python3 train_dssm.py --embed_size 256 --weight_decay 1e-5 # training
