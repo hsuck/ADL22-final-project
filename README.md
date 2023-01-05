@@ -20,7 +20,7 @@ pip install -r requirements.txt
 ## Preprocessing
 Before training, please go to [python/utils/](https://github.com/hsuck/ADL22-final-project/tree/ricky/python/utils) to perform preprocessing.
 ```
-cd python/ultils
+cd python/utils
 python3 vocab.py
 ```
 Note: default path to put vocabs is `cache/vocab`
