@@ -5,6 +5,5 @@ transformers
 scikit-learn
 beautifulsoup4
 pymilvus
-setuptools<58.0.0
 matplotlib
 ml_metrics
