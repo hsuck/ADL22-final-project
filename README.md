@@ -27,7 +27,7 @@ python3 vocab.py
 Note: default path to put vocabs is `cache/vocab`
 ## Usage
 All scripts are in `python/`
-```bash
+```text
 usage: train_dssm.py [-h] [--output OUTPUT_FILE] [--model_path MODEL_PATH] [--user_file USER_FILE] [--course_file COURSE_FILE] [--vocab_path VOCAB_PATH] [--train_file TRAIN_FILE]
                      [--val_file VAL_FILE] [--test_file TEST_FILE] [--test] [--embed_size EMBED_SIZE] [--dnn DNN [DNN ...]] [--temp TEMP] [--dropout DROPOUT] [--lr LR]
                      [--weight_decay WEIGHT_DECAY] [--epoch EPOCH] [--batch_size BATCH_SIZE]
@@ -63,7 +63,7 @@ optional arguments:
   --batch_size BATCH_SIZE
 ```
 Note: When using option `--dnn`, you need to pass a sequence, e.g. --dnn 128 64
-```bash
+```text
 usage: merge.py [-h] [--output OUTPUT_FILE] [--input INPUT_FILE] [--data_path DATA_PATH]
 
 Append the number of subgroups to 50 for each user
