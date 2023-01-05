@@ -79,4 +79,29 @@ optional arguments:
 ```
 python3 train_dssm.py # training
 python3 train_dssm.py --test # testing
+
+python3 merge.py # change course_id to corresponding subgroup for each user
+```
+
+## Reproduce
+### Seen domain 
+#### Course Prediction
+```
+python3 train_dssm.py --embed_size 16 --temp 1 --dropout 0.2 --epoch 10 --weight_decay 1e-5 # training
+python3 train_dssm.py --embed_size 16 --dropout 0.2 --test --output prediction.csv # testing
+```
+#### Topic Prediction
+```
+python3 mergy.py --input prediction.csv --data_path {data path} --output subgroup.csv # need to predict course first
+```
+
+### Uneen domain 
+#### Course Prediction
+```
+python3 train_dssm.py --embed_size 256 --temp 1 --epoch 10 --weight_decay 1e-5 # training
+python3 train_dssm.py --embed_size 256 --test --output prediction.csv # testing
+```
+#### Topic Prediction
+```
+python3 mergy.py --input prediction.csv --data_path {data path} --output subgroup.csv # need to predict course first
 ```
