@@ -21,7 +21,7 @@ Before training, please go to [python/utils/](https://github.com/hsuck/ADL22-fin
 ```
 python3 vocab.py
 ```
-Note: default path to put vocabs is `../cache/vocab`
+Note: default path to put vocabs is `cache/vocab`
 ## Usage
 All scripts are in `python/`
 ```
