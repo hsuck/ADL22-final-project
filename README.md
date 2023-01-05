@@ -139,5 +139,5 @@ python3 train_dssm.py --embed_size 256 --test --output unseen_course.csv \
 ```
 #### Topic Prediction
 ```
-python3 mergy.py --input unseen_course.csv --data_path {data path} --output unseen_subgroup.csv # need to predict course first
+python3 mergy.py --input unseen_course.csv --data_path path/to/data/ --output unseen_subgroup.csv # need to predict course first
 ```
