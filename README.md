@@ -86,7 +86,7 @@ python3 merge.py # change course_id to corresponding subgroup for each user
 ```
 
 ## Reproduce
-> :warning: **If you any confusion, please check the above usage.**
+> :warning: **If you have any confusion, please check the above usage.**
 
 ### Download model.pth
 ```bash
