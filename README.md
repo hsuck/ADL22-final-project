@@ -85,31 +85,33 @@ python3 merge.py # change course_id to corresponding subgroup for each user
 ```
 
 ## Reproduce
-If you any concern, please check the above usage.
+> :warning: **If you any concern, please check the above usage.**
 ### Seen domain 
 #### Course Prediction
 ```
 # training
 python3 train_dssm.py --dropout 0.2 --weight_decay 1e-5 \
-  --user_file path/to/users.csv \ # default: ../data/users.csv
-  --course_file path/to/courses.csv \ # default: ../data/courses.csv
-  --vocab_path path/to/vocab/ \ # default: ../cache/vocab/
-  --train_file path/to/train.csv \ # default: ../data/train.csv
-  --val_file path/to/val_seen.csv \ # default: ../data/val_seen.csv
-  --test_file path/to/test_seen.csv # default: ../data/test_seen.csv
-
-# testing
-python3 train_dssm.py --dropout 0.2 --test --output prediction.csv \
   --user_file path/to/users.csv \
   --course_file path/to/courses.csv \
   --vocab_path path/to/vocab/ \
   --train_file path/to/train.csv \
   --val_file path/to/val_seen.csv \
-  --test_file path/to/test_seen.csv
+  --test_file path/to/test_seen.csv \
+  --model_path ./models/seen/
+
+# testing
+python3 train_dssm.py --dropout 0.2 --test --output seen_course.csv \
+  --user_file path/to/users.csv \
+  --course_file path/to/courses.csv \
+  --vocab_path path/to/vocab/ \
+  --train_file path/to/train.csv \
+  --val_file path/to/val_seen.csv \
+  --test_file path/to/test_seen.csv \
+  --model_path ./models/seen/
 ```
 #### Topic Prediction
 ```
-python3 mergy.py --input prediction.csv --data_path {data path} --output subgroup.csv # need to predict course first
+python3 mergy.py --input seen_course.csv --data_path path/to/data/ --output seen_subgroup.csv # need to predict course first
 ```
 
 ### Unseen domain 
@@ -122,18 +124,20 @@ python3 train_dssm.py --embed_size 256 --weight_decay 1e-5 \
   --vocab_path path/to/vocab/ \
   --train_file path/to/train.csv \
   --val_file path/to/val_unseen.csv \
-  --test_file path/to/test_unseen.csv
+  --test_file path/to/test_unseen.csv \
+  --model_path ./models/unseen/
 
 # testing
-python3 train_dssm.py --embed_size 256 --test --output prediction.csv \
+python3 train_dssm.py --embed_size 256 --test --output unseen_course.csv \
   --user_file path/to/users.csv \
   --course_file path/to/courses.csv \
   --vocab_path path/to/vocab/ \
   --train_file path/to/train.csv \
   --val_file path/to/val_unseen.csv \
-  --test_file path/to/test_unseen.csv
+  --test_file path/to/test_unseen.csv \
+  --model_path ./models/unseen/
 ```
 #### Topic Prediction
 ```
-python3 mergy.py --input prediction.csv --data_path {data path} --output subgroup.csv # need to predict course first
+python3 mergy.py --input unseen_course.csv --data_path {data path} --output unseen_subgroup.csv # need to predict course first
 ```
